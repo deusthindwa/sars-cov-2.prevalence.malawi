@@ -16,9 +16,18 @@ select(data_date, cluster, ta, ea_code, village_name, household_id, household_na
 
 #=======================================================================
 
-# perform stratified sampling
+# perform stratified sampling stage 1
 ckcens_samp <- ckcens %>% filter(ta !="NULL" & child_id != "C7055446") #cleaning
 set.seed(1988) #reproducibility
-ckcens_samp <- stratified(ckcens_samp, c("cluster", "ta", "ea_code"), 4) #sampling
-ckcens_samp <- arrange(ckcens_samp, cluster, ta, ea_code, village_name, household_id)
+ckcens_samp <- stratified(ckcens_samp, c("cluster"), 40) #sampling 40 EAs in each cluster
+ckcens_samp <- 
+  ckcens_samp %>% 
+  select(cluster, ta, ea_code, village_name) %>%
+  arrange(ckcens_samp, cluster, ta, ea_code, village_name)
 write.csv(ckcens_samp, here("output", "ckcensus_sampled.csv"))
+
+
+
+
+
+
