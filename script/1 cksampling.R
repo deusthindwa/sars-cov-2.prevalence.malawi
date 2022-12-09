@@ -5,9 +5,16 @@
 
 #=======================================================================
 
+#load the require packages
+if (!require(pacman)){install.packages("pacman")}
+pacman::p_load(char = c("tidyverse", "dplyr", "lubridate", "patchwork", "rio", "boot", "devtools", "Metrics", "PropCIs", "forecast", "splitstackshape", "here"))
+
+#=======================================================================
+#=======================================================================
+
 #load PHIM dataset
 ckcens <- import(here("data", "chikwawacensus.csv")) %>%
-  
+
 #=======================================================================
 
 #data wrangling
@@ -27,7 +34,24 @@ ckcens_samp <-
 write.csv(ckcens_samp, here("output", "ckcensus_sampled.csv"))
 
 
+#=======================================================================
+#=======================================================================
 
+#load Ndirande dataset
+ndcens <- import(here("data", "tyvac_censuslocation.dta")) %>%
+
+#data wrangling
+filter(!is.na(ndixarea), !is.na(latitude), !is.na(longtude)) %>%
+select(everything(), -hhnm, -site, -zingwarea, -hhmembr_id, -hhagemon, -hhagemon_updt, -hhageyr_updt) %>%
+distinct(hhid, .keep_all = TRUE)
+
+#=======================================================================
+
+# perform stratified sampling stage 1
+set.seed(1988) #reproducibility
+ndcens_samp <- stratified(ndcens, c("ndixarea"), .025) #sampling 40 EAs in each cluster
+ndcens_samp <- arrange(ndcens_samp, ndixarea, longtude, latitude)
+write.csv(ndcens_samp, here("output", "ndcensus_sampled.csv"))
 
 
 
