@@ -5,7 +5,14 @@
 
 #=======================================================================
 
-#load PHIM dataset
+#load the require packages
+if (!require(pacman)){install.packages("pacman")}
+pacman::p_load(char = c("tidyverse", "dplyr", "lubridate", "patchwork", "rio", "boot", "devtools", "Metrics", "PropCIs", "forecast", "splitstackshape", "here"))
+
+#=======================================================================
+#=======================================================================
+
+#load CHIKWAWA dataset
 ckcens <- import(here("data", "chikwawacensus.csv")) %>%
   
 #=======================================================================
@@ -22,12 +29,54 @@ set.seed(1988) #reproducibility
 ckcens_samp <- stratified(ckcens_samp, c("cluster"), 40) #sampling 40 EAs in each cluster
 ckcens_samp <- 
   ckcens_samp %>% 
-  select(cluster, ta, ea_code, village_name) %>%
-  arrange(ckcens_samp, cluster, ta, ea_code, village_name)
+  select(cluster, ta, ea_code) %>%
+  arrange(ckcens_samp, cluster, ta, ea_code)
 write.csv(ckcens_samp, here("output", "ckcensus_sampled.csv"))
 
+#=======================================================================
+# perform stratified sampling stage 1
+X <- left_join(ckcens_samp, ckcens %>% select(ea_code,  village_name, household_name))
 
+ckcens_samp <- stratified(ckcens_samp, c("cluster"), 40) #sampling 40 EAs in each cluster
+ckcens_samp <- 
+  ckcens_samp %>% 
+  select(cluster, ta, ea_code) %>%
+  arrange(ckcens_samp, cluster, ta, ea_code)
+write.csv(ckcens_samp, here("output", "ckcensus_sampled.csv"))
 
+#=======================================================================
+#=======================================================================
 
+#load NDIRANDE dataset
+ndcens <- import(here("data", "tyvac_censuslocation.dta")) %>%
+  
+#=======================================================================
+
+#data wrangling
+filter(!is.na(ndixarea), ndixarea ==32) %>%
+  select(everything(), -hhnm, -site, -zingwarea, -hhmembr_id, -hhagemon, -hhagemon_updt, -hhageyr_updt) %>%
+  distinct(latitude, .keep_all = TRUE)
+
+Albert <- 
+  ndcens %>% 
+  select(everything(), -respnm, -data_date, -address, -hhsex, -hhageyr)
+
+readr::write_csv(x = Albert, file = here("output", "AlbertGPS.csv"))
+readr::write_csv(x = ndcens, file = here("output", "AlbertLIST.csv"))
+
+#rename("hhid" = "hh Household ID Household ID", )
+  mutate(cluster = as_factor(cluster), ta = as_factor(ta), village_name = as_factor(village_name)) 
+
+#=======================================================================
+
+# perform stratified sampling stage 1
+ckcens_samp <- ckcens %>% filter(ta !="NULL" & child_id != "C7055446") #cleaning
+set.seed(1988) #reproducibility
+ckcens_samp <- stratified(ckcens_samp, c("cluster"), 40) #sampling 40 EAs in each cluster
+ckcens_samp <- 
+  ckcens_samp %>% 
+  select(cluster, ta, ea_code) %>%
+  arrange(ckcens_samp, cluster, ta, ea_code)
+write.csv(ckcens_samp, here("output", "ckcensus_sampled.csv"))
 
 
