@@ -1,1 +1,1 @@
-# sars-cov-2.prevalence.malawi
+# Pneumococcal serotype dynamics in HIV-infected adults in Malawi
