@@ -5,8 +5,8 @@
 #====================================================================
 
 #load packages
-pacman::p_load(char = c("lubridate", "tidyverse", "dplyr", "here", "rio", "scales", "boot", "magrittr",  "mvtnorm", "zoo", "patchwork", "ggplotify",
-                        "PropCIs", "reshape2","purrr", "msm", "minqa", "ggridges", "timetk", "ggbreak", "ggpubr", "gridExtra", "doParallel", "igraph"))
+pacman::p_load(char = c("lubridate", "tidyverse", "dplyr", "here", "rio", "scales", "boot", "magrittr",  "mvtnorm", "zoo", "patchwork", "ggplotify", "sf",
+                        "PropCIs", "reshape2","purrr", "msm", "minqa", "ggridges", "timetk", "ggbreak", "ggpubr", "gridExtra", "doParallel", "igraph", "rgdal"))
 
 #====================================================================
 

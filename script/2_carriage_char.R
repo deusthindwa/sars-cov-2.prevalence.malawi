@@ -4,238 +4,221 @@
 
 #====================================================================
 
+#BASELINE SAMPLE DESCRIPTION
+
+#total HIV
+spn_baseline %>%
+  group_by(hiv) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+#hiv by serotype group
+spn_baseline %>%
+  group_by(hiv, serogroup) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+#hiv by sex group
+spn_baseline %>%
+  group_by(hiv, sex) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+#hiv by agegp group
+spn_baseline %>%
+  filter(!is.na(age)) %>%
+  group_by(hiv) %>%
+  summarise(mqage = quantile(age, 0.50),
+            fqage = quantile(age, 0.25),
+            tqage = quantile(age, 0.75))
+
+spn_baseline %>%
+  group_by(hiv, agegp) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+#hiv by number of children in the household
+spn_baseline %>%
+  group_by(hiv, nochild) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+#hiv by pneumococcal density
+spn_baseline %>%
+  group_by(hiv) %>%
+  filter(!is.na(dens)) %>%
+  summarise(mqdens = quantile(dens, 0.50),
+            fqdens = quantile(dens, 0.25),
+            tqdens = quantile(dens, 0.75))
+
+spn_baseline %>%
+  group_by(hiv, dens2) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+#====================================================================
+
+#FOLLOW UP SAMPLE DESCRIPTION
+
 A <- 
-  spn_fup %>%
+  spn_model %>%
   ungroup() %>%
-  group_by(vday, hiv, serogroup) %>%
+  group_by(vday, hivst) %>%
   tally() %>%
   mutate(prev = n/sum(n), N = sum(n)) %>%
-  filter(vday != 0, vday != 16) %>%
+  ungroup() %>%
   rowwise() %>% 
   mutate(obs_lci = exactci(n, N, 0.95) [["conf.int"]][[1]], obs_uci = exactci(n, N, 0.95) [["conf.int"]][[2]]) %>%
-  filter(serogroup != "None") %>%
-  mutate(hivst = if_else(hiv=="HIV-" & serogroup == "VT", "VT, HIV-",
-                         if_else(hiv=="HIV-" & serogroup == "NVT", "NVT, HIV-",
-                                 if_else(hiv=="HIV+ART+" & serogroup == "VT", "VT, HIV+ART", "NVT, HIV+ART")))) %>%
+  ungroup() %>%
+  filter(!is.na(hivst)) %>%
   
   ggplot() + 
   geom_point(aes(x = vday, y = prev, color = hivst, size = n), shape = 1, stroke = 2) +
   geom_line(aes(x = vday, y = prev, color = hivst), size = 1.5) + 
-  #geom_ribbon(aes(x = vday, y = prev, group = hivst, fill = hivst, color = hivst, ymin = obs_lci, ymax = obs_uci), alpha = 0.2, size = 0.1) +
   theme_bw(base_size = 14, base_family = "American Typewriter") +
-  scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
-  scale_x_continuous(limit = c(1, 15), breaks = seq(1, 15, 2)) + 
+  scale_y_continuous(limit = c(0, 0.3), breaks = seq(0, 0.3, 0.05), labels = scales::percent_format(accuracy = 1)) + 
+  scale_x_continuous(limit = c(1, 17), breaks = seq(1, 17, 2)) + 
   labs(title = "(a)", x = "Visit number", y = "Pneumococcal carriage prevalence") +
   theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
   theme(legend.text=element_text(size = 12), legend.title = element_text(size = 12)) +
   guides(fill = "none", color = guide_legend(title = "Serotype, HIV status"), size = guide_legend(title = "Sample size")) +
   theme(legend.position = "right") + 
-  theme(panel.border = element_rect(colour = "black", fill = NA, size = 1)) 
+  theme(panel.border = element_rect(colour = "black", fill = NA, size = 2)) 
 
 
 X <-
-  spn_fup %>%
+  spn_model %>%
   ungroup() %>%
-  group_by(hiv, serogroup) %>%
+  group_by(hivst) %>%
   tally() %>%
   mutate(prev = n/sum(n), N = sum(n)) %>%
+  ungroup() %>%
   rowwise() %>% 
   mutate(obs_lci = exactci(n, N, 0.95) [["conf.int"]][[1]], obs_uci = exactci(n, N, 0.95) [["conf.int"]][[2]]) %>%
-  #filter(serogroup != "None") %>%
-  mutate(hivst = if_else(hiv=="HIV-" & serogroup == "VT", "VT, HIV-",
-                         if_else(hiv=="HIV-" & serogroup == "NVT", "NVT, HIV-",
-                                 if_else(hiv=="HIV+ART+" & serogroup == "VT", "VT, HIV+ART", "NVT, HIV+ART")))) %>%
+  ungroup() %>%
+  filter(!is.na(hivst)) %>%
   
   ggplot(aes(x = prev, y = hivst, color = hivst)) +  
   geom_bar(stat = "identity", position = "dodge", fill = "white", width = 0.8, size = 1) +
   geom_text(aes(label = n), position = position_dodge(0.9), size = 5, hjust = -1.8) +
   geom_errorbar(aes(xmin = obs_lci, xmax = obs_uci), width = 0.2, position = position_dodge(0.9), size = 0.8) +
   theme_bw(base_size = 14, base_family = "American Typewriter") +
-  scale_x_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
+  scale_x_continuous(limit = c(0, 0.2), breaks = seq(0, 0.2, 0.05), labels = scales::percent_format(accuracy = 1)) + 
   labs(title="", x = "Total carriage prevalence", y = "") +
-  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 12), axis.text.y = element_text(face = "bold", size = 12)) +
+  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
   theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + 
   theme(legend.position = "none") + 
-  theme(panel.border = element_rect(colour = "black", fill = NA, size = 1)) 
+  theme(panel.border = element_rect(colour = "black", fill = NA, size = 2)) 
 
 
 B <- 
-  spn_fup %>%
-  ungroup() %>%
-  mutate(nochildx = if_else(nochild == 1, "1 child", "2+ children")) %>%
-  group_by(hiv, nochildx, serogroup) %>%
-  tally() %>%
-  mutate(prev = n/sum(n), N = sum(n)) %>%
-  rowwise() %>% 
-  mutate(obs_lci = exactci(n, N, 0.95) [["conf.int"]][[1]], obs_uci = exactci(n, N, 0.95) [["conf.int"]][[2]]) %>%
-  filter(serogroup != "None") %>%
-  mutate(hivst = if_else(hiv=="HIV-" & serogroup == "VT", "VT, HIV-",
-                         if_else(hiv=="HIV-" & serogroup == "NVT", "NVT, HIV-",
-                                 if_else(hiv=="HIV+ART+" & serogroup == "VT", "VT, HIV+ART", "NVT, HIV+ART")))) %>%
+  spn_model %>%
+  filter(!is.na(hivst)) %>%
   
-  ggplot(aes(x = hivst, y = prev, color = hivst)) +  
-  geom_bar(stat = "identity", position = position_dodge(0.9), fill = "white", size = 1.5) +
-  geom_text(aes(label = n), position = position_dodge(0.9), size = 5, vjust = -4.5) +
-  geom_errorbar(aes(ymin = obs_lci, ymax = obs_uci), width = 0.2, position = position_dodge(0.9), size = 0.8) +
-  facet_grid(.~nochildx) +
+  mutate(hivst0 = if_else(hivst == "VT,HIV-", "VT\nHIV-",
+                          if_else(hivst == "NVT,HIV-", "NVT\nHIV-",
+                                  if_else(hivst == "VT,ART<3m", "VT\nART<3m",
+                                          if_else(hivst == "NVT,ART<3m", "NVT\nART<3m",
+                                                  if_else(hivst == "VT,ART>1y", "VT\nART>1y",
+                                                          if_else(hivst == "NVT,ART>1y", "NVT\nART>1y", NA_character_))))))) %>%
+  
+  ggplot(aes(y = dens0, x = hivst0, color = hivst0)) + 
+  geom_boxplot(notch = TRUE, size = 1.6) +
+  scale_y_continuous(trans = log10_trans()) +
   theme_bw(base_size = 14, base_family = "American Typewriter") +
-  scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
-  labs(title = "(b)", x = "Number of children in the household", y = "") +
+  labs(title = "(b)", x="", y = "Pneumococcal carriage density (log_CFU/ml)") +
   theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
+  theme(legend.text = element_text(size = 11), legend.title = element_text(size = 11)) + 
   theme(legend.position = "none") + 
-  theme(panel.border = element_rect(colour = "black", fill = NA, size = 1), strip.background = element_rect(fill = "white"))
+  theme(panel.border = element_rect(colour = "black", fill = NA, size = 2))
 
 
 C <- 
-  spn_fup %>%
-  ungroup() %>%
-  group_by(hiv, sex, serogroup) %>%
+  spn_model %>%
+  filter(!is.na(hivst)) %>%
+  group_by(nochild, hivst) %>%
   tally() %>%
   mutate(prev = n/sum(n), N = sum(n)) %>%
-  rowwise() %>% 
-  mutate(obs_lci = exactci(n, N, 0.95) [["conf.int"]][[1]], obs_uci = exactci(n, N, 0.95) [["conf.int"]][[2]]) %>%
-  filter(serogroup != "None") %>%
-  mutate(hivst = if_else(hiv=="HIV-" & serogroup == "VT", "VT, HIV-",
-                         if_else(hiv=="HIV-" & serogroup == "NVT", "NVT, HIV-",
-                                 if_else(hiv=="HIV+ART+" & serogroup == "VT", "VT, HIV+ART", "NVT, HIV+ART")))) %>%
+  ungroup() %>%
   
-  ggplot(aes(x = hivst, y = prev, color = hivst)) +  
-  geom_bar(stat = "identity", position = position_dodge(0.9), fill = "white", size = 1.5) +
-  geom_text(aes(label = n), position = position_dodge(0.9), size = 5, vjust = -4.5) +
-  geom_errorbar(aes(ymin = obs_lci, ymax = obs_uci), width = 0.2, position = position_dodge(0.9), size = 0.8) +
-  facet_grid(.~sex) +
+  ggplot(mapping = aes(x = nochild, y = prev, color = hivst, fill = hivst)) + 
+  geom_bar(stat = "identity", color = "black", size = 0.7) +
+  geom_text(aes(label = n, fontface = 2), size = 5, color = "black", position = position_stack(vjust = 0.5)) +
   theme_bw(base_size = 14, base_family = "American Typewriter") +
-  scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
-  labs(title = "(c)", x = "Sex", y = "") +
+  labs(title = "(c)", x = "Number of children in the house", y = "Share of total carriage samples") +
+  scale_y_continuous(breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) +
   theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
-  theme(legend.position = "none") + 
-  theme(panel.border = element_rect(colour = "black", fill = NA, size = 1), strip.background = element_rect(fill = "white"))
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(colour = "black", fill = NA, size = 2), strip.background = element_rect(fill = "white"))
 
+  
 D <- 
-  spn_fup %>%
-  ungroup() %>%
-  filter(!is.na(ses)) %>%
-  mutate(ses = as.factor(if_else(ses <= 3, "Low",
-                                 if_else(ses > 3 & ses <=15, "High", NA_character_)))) %>%
-  group_by(hiv, ses, serogroup) %>%
+  spn_model %>%
+  filter(!is.na(hivst)) %>%
+  group_by(sex, hivst) %>%
   tally() %>%
   mutate(prev = n/sum(n), N = sum(n)) %>%
-  rowwise() %>% 
-  mutate(obs_lci = exactci(n, N, 0.95) [["conf.int"]][[1]], obs_uci = exactci(n, N, 0.95) [["conf.int"]][[2]]) %>%
-  filter(serogroup != "None") %>%
-  mutate(hivst = if_else(hiv=="HIV-" & serogroup == "VT", "VT, HIV-",
-                         if_else(hiv=="HIV-" & serogroup == "NVT", "NVT, HIV-",
-                                 if_else(hiv=="HIV+ART+" & serogroup == "VT", "VT, HIV+ART", "NVT, HIV+ART")))) %>%
+  ungroup() %>%
   
-  ggplot(aes(x = hivst, y = prev, color = hivst)) +  
-  geom_bar(stat = "identity", position = position_dodge(0.9), fill = "white", size = 1.5) +
-  geom_text(aes(label = n), position = position_dodge(0.9), size = 5, vjust = -3.5) +
-  geom_errorbar(aes(ymin = obs_lci, ymax = obs_uci), width = 0.2, position = position_dodge(0.9), size = 0.8) +
-  facet_grid(.~ses) +
+  ggplot(mapping = aes(x = sex, y = prev, color = hivst, fill = hivst)) + 
+  geom_bar(stat = "identity", color = "black", size = 0.7) +
+  geom_text(aes(label = n, fontface = 2), size = 5, color = "black", position = position_stack(vjust = 0.5)) +
   theme_bw(base_size = 14, base_family = "American Typewriter") +
-  scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
-  labs(title = "(d)", x = "Socioeconomic status", y = "Pneumococcal carriage prevalence") +
-  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
-  theme(legend.position = "none") + 
-  theme(panel.border = element_rect(colour = "black", fill = NA, size = 1), strip.background = element_rect(fill = "white"))
+  labs(title = "(d)", x = "Sex", y = "") +
+  scale_y_continuous(breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) +
+  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 0)) +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(colour = "black", fill = NA, size = 2), strip.background = element_rect(fill = "white"))
 
+  
 E <- 
-  spn_fup %>%
+  spn_model %>%
+  filter(!is.na(hivst)) %>%
+  group_by(agegp, hivst) %>%
+  tally() %>%
+  mutate(prev = n/sum(n), N = sum(n)) %>%
   ungroup() %>%
-  filter(!is.na(age), serogroup != "None") %>%
-  mutate(hivst = if_else(hiv=="HIV-" & serogroup == "VT", "VT\nHIV-",
-                         if_else(hiv=="HIV-" & serogroup == "NVT", "NVT\nHIV-",
-                                 if_else(hiv=="HIV+ART+" & serogroup == "VT", "VT\nHIV+ART", "NVT\nHIV+ART")))) %>%
   
-  ggplot(aes(y = age, x = hivst, color = hivst)) + 
-  geom_boxplot(notch = TRUE, size = 1.6) +
+  ggplot(mapping = aes(x = agegp, y = prev, color = hivst, fill = hivst)) + 
+  geom_bar(stat = "identity", color = "black", size = 0.7) +
+  geom_text(aes(label = n, fontface = 2), size = 5, color = "black", position = position_stack(vjust = 0.5)) +
   theme_bw(base_size = 14, base_family = "American Typewriter") +
-  scale_y_continuous(limit = c(18, 45), breaks = seq(18, 45, 5)) + 
-  labs(title = "(e)", x="", y = "Age (years)") +
-  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 12), axis.text.y = element_text(face = "bold", size = 12)) +
-  theme(legend.text = element_text(size = 11), legend.title = element_text(size = 11)) + 
-  theme(legend.position = "none") + 
-  theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
+  labs(title = "(e)", x = "Age group", y = "") +
+  scale_y_continuous(breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) +
+  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 0)) +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(colour = "black", fill = NA, size = 2), strip.background = element_rect(fill = "white"))
 
 
-F <- 
-  spn_fup %>%
-  ungroup() %>%
-  filter(!is.na(dens), serogroup != "None") %>%
-  mutate(hivst = if_else(hiv=="HIV-" & serogroup == "VT", "VT\nHIV-",
-                         if_else(hiv=="HIV-" & serogroup == "NVT", "NVT\nHIV-",
-                                 if_else(hiv=="HIV+ART+" & serogroup == "VT", "VT\nHIV+ART", "NVT\nHIV+ART")))) %>%
-  
-  ggplot(aes(y = dens, x = hivst, color = hivst)) + 
-  geom_boxplot(notch = TRUE, size = 1.6) +
-  scale_y_continuous(trans = log10_trans()) +
-  theme_bw(base_size = 14, base_family = "American Typewriter") +
-  labs(title = "(f)", x="", y = "Pneumococcal carriage density (logCFU/ml)") +
-  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 12), axis.text.y = element_text(face = "bold", size = 12)) +
-  theme(legend.text = element_text(size = 11), legend.title = element_text(size = 11)) + 
-  theme(legend.position = "none") + 
-  theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
+#load shape file of Malawi map and subset for Blantyre
+# nasotmp <- tempfile()
+# download.file("https://raw.githubusercontent.com/deusthindwa/dlnm.typhoid.nts.climate.blantyre.malawi/master/data/malawi_map.zip", destfile = nasotmp)
+# unzip(nasotmp, exdir = ".")
+# mw.map <- rgdal::readOGR(".","malawi_map")
+# bt1.map <- mw.map@data$OBJECTID >289 & mw.map@data$OBJECTID <297 #id from 290 to 296 
+# bt2.map <- mw.map@data$OBJECTID >308 & mw.map@data$OBJECTID <311 #id from 309 to 310
+# bt3.map <- mw.map@data$OBJECTID >342  #id fom 243
+# bt.map <- bind_rows(fortify(mw.map[bt1.map,]), fortify(mw.map[bt2.map,]), fortify(mw.map[bt3.map,]))
+# readr::write_csv(x = bt.map, file = here("data", "spn_btmap.csv"))
 
-
-G <- 
-  spn_fup %>%
-  ungroup() %>%
-  filter(!is.na(artdur), serogroup != "None") %>%
-  group_by(serogroup, artdur)  %>%
-  
+F <-
+  spn_btmap %>%
   ggplot() + 
-  geom_density(aes(x = artdur, fill = serogroup), color = "black", alpha = 0.5, size = 1.5) +
+  geom_polygon(aes(x = long, y = lat, group = group), fill = "white", colour = "gray50", size = 1) + 
+  geom_point(data = spn_loc, aes(x = lon, y = lat, size = nsample), color = "black", shape = 1, stroke = 3) +
   theme_bw(base_size = 14, base_family = "American Typewriter") +
-  labs(title = "(g)", x = "ART duration (Years) among HIV+ART", y = "Probability density") +
-  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 12), axis.text.y = element_text(face = "bold", size = 12)) +
-  theme(legend.text=element_text(size = 11), legend.title = element_text(size = 11)) + 
-  guides(fill=guide_legend(title="Carriage")) +
-  theme(legend.position = "none") + 
-  theme(panel.border = element_rect(colour = "black", fill = NA, size = 1)) + 
-  scale_fill_manual("", values = c("NVT" = "#7CAE00", "VT" = "#C77CFF"))
+  labs(title = "(f)", x = "Longitude", y = "Latitude") +
+  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
+  theme(panel.border = element_rect(colour = "black", fill = NA, size = 2), strip.background = element_rect(fill = "white")) + 
+  guides(color = FALSE, fill = FALSE, size = guide_legend(title = "Sample size")) +
+  theme(legend.position = c(0.15,0.85))
 
-
-Y <- 
-  spn_fup %>%
-  ungroup() %>%
-  filter(!is.na(artdur), serogroup != "None") %>%
   
-  ggplot(aes(y = artdur, x = serogroup, fill = serogroup)) + 
-  geom_boxplot(notch = TRUE, color = "black", size = 1) +
-  theme_bw(base_size = 14, base_family = "American Typewriter") +
-  scale_y_continuous(trans = log10_trans()) +
-  labs(title = "", x="", y = "ART duration (years)") +
-  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 12, angle = 90), axis.text.y = element_text(face = "bold", size = 12)) +
-  theme(legend.text = element_text(size = 11), legend.title = element_text(size = 11)) + 
-  theme(legend.position = "none") + 
-  scale_fill_manual("", values = c("NVT" = "#7CAE00", "VT" = "#C77CFF"))
-
-
-H <- 
-  spn_fup %>%
-  ungroup() %>%
-  filter(!is.na(cd4), serogroup != "None", hiv == "HIV+ART+") %>%
-  group_by(hiv, serogroup, cd4)  %>%
-  
-  ggplot() + 
-  geom_density(aes(x = cd4, fill = serogroup), color = "black", alpha = 0.5, size = 1.5) +
-  theme_bw(base_size = 14, base_family = "American Typewriter") +
-  labs(title = "(h)", x = "CD4 count among HIV+ART", y = "Probability density") +
-  theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 12), axis.text.y = element_text(face = "bold", size = 12)) +
-  theme(legend.text=element_text(size = 11), legend.title = element_text(size = 11)) + 
-  guides(fill=guide_legend(title="Carriage")) +
-  theme(legend.position = "none") + 
-  theme(panel.border = element_rect(colour = "black", fill = NA, size = 1)) + 
-  scale_fill_manual("", values = c("NVT" = "#7CAE00", "VT" = "#C77CFF"))
-
 #combined plots
 ggsave(here("output", "Fig1_carriage_char.png"),
-       plot = ((A | inset_element(X, right = 0.9, left = 0.3, bottom = 0.66, top = 0.99) | B | C | plot_layout(ncol = 3, width = c(2,1,1)))) / 
-         (( D | E | F | G | inset_element(Y, right = 0.95, left = 0.50, bottom = 0.4, top = 0.99)) | plot_layout(ncol = 4, width = c(2,2,2,2,2))),
+       plot = ((A | inset_element(X, right = 0.9, left = 0.3, bottom = 0.46, top = 0.99) | B | plot_layout(ncol = 2, width = c(2,2)))) / 
+         (( C | D | E | F ) | plot_layout(ncol = 4, width = c(1.1,1.1,1.1,3))),
        width = 21, height = 14, unit="in", dpi = 300)
 
 #delete individual plots after saving above
-rm(A, B, C, D, E, F, G, H, X, Y)
+rm(A, B, C, D, E, F, X)
