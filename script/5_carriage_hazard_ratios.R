@@ -4,8 +4,8 @@
 
 #====================================================================
 
-#effects of covariates on whole carriage dynamics
+#effects of covariates on whole carriage
 hazard.msm(spn_modelfit1, hazard.scale = 1, cl = 0.95)
 
-#effects of covariates on whole carriage dynamics
+#effects of covariates on vaccine-serotype group carriage
 hazard.msm(spn_modelfit2, hazard.scale = 1, cl = 0.95)
