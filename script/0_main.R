@@ -19,20 +19,23 @@ addTaskCallback(function(...) {set.seed(12345);TRUE})
 #getting and putting datasets in right order for analysis
 source(here("script", "1_data_wrangling.R"))
 
-#characterizing spn carriage at baseline
+#characterizing spn carriage at baseline and follow up
 source(here("script", "2_carriage_char.R"))
 
-#run SIS Markov model in a Markov modelling framework
+#run SIS Markov model
 source(here("script", "3_markov_modelfit.R"))
 
-#use SIS Markov model to estimate acquisition and clearance of carriage 
+#compute carriage acquisition and clearance rates at vaccine-serotype group level
 source(here("script", "4_carriage_acq_dur.R"))
 
-#use SIS Markov model to estimate hazard ratios comparing covariate levels
+#compute hazard ratios comparing different covariate levels
 source(here("script", "5_carriage_hazard_ratios.R"))
 
-#use SIS Markov model to estimate the number of carriage episodes 
+#compute carriage acquisition and clearance rates at serotype level
 source(here("script", "6_serotype_dynamics.R"))
 
-#rerun multiple chains SIS Markov model for convergence and model fit check
-#source(here("script", "7_model_convergence.R"))
+#compute the number of carriage episodes 
+source(here("script", "7_carriage_miscelleneous.R"))
+
+#characterize and compute acquisition and clearance for serotypes in each pcv 
+source(here("script", "8_pcv_serotype_dynamics.R"))

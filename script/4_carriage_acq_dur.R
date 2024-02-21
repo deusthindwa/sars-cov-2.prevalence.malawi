@@ -20,7 +20,7 @@ a <-
   geom_point(aes(hivst, carry, shape = hivst), color = "black", size = 3, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(hivst,  ymin = Lcarry, ymax = Ucarry), color = "black", width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   theme_bw(base_size = 14, base_family = 'American Typewriter') + 
-  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.045)) + 
+  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.05)) + 
   labs(title = "(a)", x = "", y = "Daily carriage acquisition probability") + 
   theme(axis.text.y = element_text(face = "bold", size = 10)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
@@ -50,7 +50,7 @@ b <-
   geom_point(aes(hivst, carry, color = hivst), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(hivst,  ymin = Lcarry, ymax = Ucarry, color = hivst), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   theme_bw(base_size = 14, base_family = 'American Typewriter') + 
-  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.045)) + 
+  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.05)) + 
   labs(title = "(b)", x = "", y = "") + 
   theme(axis.text.y = element_text(face = "bold", size = 10)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.text.y = element_blank()) + 
@@ -86,7 +86,7 @@ c <-
   geom_point(aes(id, carry, color = hivst, shape = sex), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, carry, color = hivst, ymin = Lcarry, ymax = Ucarry), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   theme_bw(base_size = 14, base_family = 'American Typewriter') + 
-  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.045)) + 
+  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.05)) + 
   scale_shape_manual(values = c(4, 5)) +
   labs(title = "(c)", x = "", y = "") + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.text.y = element_blank()) + 
@@ -122,7 +122,7 @@ d <-
   geom_point(aes(id, carry, color = hivst, shape = agegp), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, carry, color = hivst, ymin = Lcarry, ymax = Ucarry), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   theme_bw(base_size = 14, base_family = 'American Typewriter') + 
-  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.045)) + 
+  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.05)) + 
   scale_shape_manual(values = c(4, 5)) +
   labs(title = "(d)", x = "", y = "") + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.text.y = element_blank()) + 
@@ -158,7 +158,7 @@ e <-
   geom_point(aes(id, carry, color = hivst, shape = nochild), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, carry, color = hivst, ymin = Lcarry, ymax = Ucarry), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   theme_bw(base_size = 14, base_family = 'American Typewriter') + 
-  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.045)) + 
+  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.05)) + 
   scale_shape_manual(values = c(4, 5)) +
   labs(title = "(e)", x = "", y = "") + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.text.y = element_blank()) + 
@@ -194,7 +194,7 @@ f <-
   geom_point(aes(id, carry, color = hivst, shape = ses), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, carry, color = hivst, ymin = Lcarry, ymax = Ucarry), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   theme_bw(base_size = 14, base_family = 'American Typewriter') + 
-  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.045)) + 
+  scale_y_continuous(breaks = c(0, 0.01, 0.02, 0.03, 0.04), limits = c(0, 0.05)) + 
   scale_shape_manual(values = c(4, 5)) +
   labs(title = "(f)", x = "", y = "") + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.text.y = element_blank()) + 

@@ -8,17 +8,31 @@
 
 #total HIV
 spn_base %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+spn_base %>%
   group_by(hiv) %>%
   tally() %>%
   mutate(p = n/sum(n))
 
 #hiv by serotype group
 spn_base %>%
+  group_by(serogroup) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+spn_base %>%
   group_by(hiv, serogroup) %>%
   tally() %>%
   mutate(p = n/sum(n))
 
 #hiv by sex group
+spn_base %>%
+  group_by(sex) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
 spn_base %>%
   group_by(hiv, sex) %>%
   tally() %>%
@@ -27,10 +41,20 @@ spn_base %>%
 #hiv by agegp group
 spn_base %>%
   filter(!is.na(age)) %>%
+  summarise(mqage = quantile(age, 0.50),
+            fqage = quantile(age, 0.25),
+            tqage = quantile(age, 0.75))
+
+spn_base %>%
+  filter(!is.na(age)) %>%
   group_by(hiv) %>%
   summarise(mqage = quantile(age, 0.50),
             fqage = quantile(age, 0.25),
             tqage = quantile(age, 0.75))
+spn_base %>%
+  group_by(agegp) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
 
 spn_base %>%
   group_by(hiv, agegp) %>%
@@ -39,11 +63,22 @@ spn_base %>%
 
 #hiv by number of children in the household
 spn_base %>%
+  group_by(nochild) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+spn_base %>%
   group_by(hiv, nochild) %>%
   tally() %>%
   mutate(p = n/sum(n))
 
 #hiv by pneumococcal density
+spn_base %>%
+  filter(!is.na(dens)) %>%
+  summarise(mqdens = quantile(dens, 0.50),
+            fqdens = quantile(dens, 0.25),
+            tqdens = quantile(dens, 0.75))
+
 spn_base %>%
   group_by(hiv) %>%
   filter(!is.na(dens)) %>%
@@ -52,7 +87,23 @@ spn_base %>%
             tqdens = quantile(dens, 0.75))
 
 spn_base %>%
+  group_by(densgp) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+spn_base %>%
   group_by(hiv, densgp) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+#social econiomic status
+spn_base %>%
+  group_by(ses) %>%
+  tally() %>%
+  mutate(p = n/sum(n))
+
+spn_base %>%
+  group_by(hiv, ses) %>%
   tally() %>%
   mutate(p = n/sum(n))
 

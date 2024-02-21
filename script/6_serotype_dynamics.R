@@ -7,6 +7,7 @@
 # serotype prevalence
 A <- 
   spn_fup %>% 
+  dplyr::mutate(serotype = if_else(serotype == "NVT", "uNVT", serotype)) %>%
   filter(!is.na(serotype)) %>%
   group_by(serotype) %>%
   tally() %>%
@@ -14,7 +15,7 @@ A <-
   ggplot(aes(x = reorder(serotype, sp)), fill = serotype) + 
   geom_bar(aes(y = sp), color = "black", stat = 'identity', size = 1, width = 0.6) +
   theme_bw(base_size = 14, base_family = "American Typewriter") +
-  labs(title = "(a)", x = "Occurence of detected serotype during all visits combined", y = "Share of total serotypes") +
+  labs(title = "(a)", x = "Occurence of detected serotype during all visits combined", y = "Serotype carriage prevalence") +
   scale_fill_grey(start = 0.9, end = 0.2) +
   scale_y_continuous(limit = c(0, 0.55), breaks = seq(0, 0.55, 0.1), labels = scales::percent_format(accuracy = 1)) + 
   theme(axis.text.x = element_text(face = "bold", size = 10, angle = 90, vjust = 0.5, hjust = 1), axis.text.y = element_text(face = "bold", size = 10)) +
@@ -56,7 +57,7 @@ spn_fup %>%
   geom_bar(aes(y = sp, fill = stnew, color = stnew), stat = 'identity', size = 1, width = 0.5) + 
   geom_errorbar(aes(reorder(stnew, sp), sp, ymin = lsp, ymax = usp), color = "black", width = 0, size = 1.2) +
   theme_bw(base_size = 14, base_family = "American Typewriter") +
-  labs(title = "", x = "", y = "Share of total serotypes") +
+  labs(title = "", x = "", y = "Serotype carriage prevalence") +
   scale_y_continuous(limit = c(0, 0.60), breaks = seq(0, 0.55, 0.10), labels = scales::percent_format(accuracy = 1)) + 
   theme(axis.text.x = element_text(face = "bold", size = 10, angle = 90, vjust = 0.5, hjust = 1), axis.text.y = element_text(face = "bold",size = 10)) +
   theme(plot.title = element_text(size = 22), axis.title.x = element_text(face = "bold", size = 10), axis.title.y=element_text(face = "bold", size = 10)) +
@@ -140,13 +141,13 @@ pneumo0$Ucarry <- c(modela$U[1,2], modela$U[1,3], modela$U[1,4], modela$U[1,5], 
 
 C <- 
   pneumo0 %>%
-  mutate(acq = if_else(serotype == "uNVT", "high", "low")) %>%
+  #mutate(acq = if_else(serotype == "uNVT", "high", "low")) %>%
   ggplot() +
-  geom_point(aes(reorder(serotype, carry), carry, color = serotype), size = 1, shape = 4, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
-  geom_errorbar(aes(serotype,  ymin = Lcarry, ymax = Ucarry, color = serotype), width = 0, size = 1, position = position_dodge2(width = 0.5)) +
+  geom_point(aes(reorder(serotype, carry), log(carry), color = serotype), size = 1, shape = 4, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_errorbar(aes(serotype,  ymin = log(Lcarry), ymax = log(Ucarry), color = serotype), width = 0, size = 1, position = position_dodge2(width = 0.5)) +
   theme_bw(base_size = 14, base_family = "American Typewriter") +
-  labs(title = "(c)", x = "Pneumococcal serotype", y = "Daily carriage acquisition probability") + 
-  facet_grid(acq ~., scales = "free_y" ) +
+  labs(title = "(c)", x = "Pneumococcal serotype", y = "Daily carriage acquisition log_probability") + 
+  #facet_grid(acq ~., scales = "free_y" ) +
   theme(axis.text.y = element_text(face = "bold", size = 10)) + 
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
   guides(shape = guide_legend(title = "")) +
@@ -183,5 +184,5 @@ D <-
 
 #combined plots
 ggsave(here::here("output", "Fig4_st_dynamics.png"),
-       plot = ((A | inset_element(X, right = 0.8, left = 0.2, bottom = 0.12, top = 0.98))/(B | C | D | plot_layout(ncol = 3, width = c(2,1,1)))),
+       plot = ((A | inset_element(X, right = 0.7, left = 0.2, bottom = 0.12, top = 0.98))/(B | C | D | plot_layout(ncol = 3, width = c(2,1,1)))),
        width = 15, height = 10, unit = "in", dpi = 300)

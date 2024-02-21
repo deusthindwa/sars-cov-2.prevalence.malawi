@@ -21,7 +21,7 @@ spn_Qmatrix
 #run the Markov model
 spn_modelfit1 <- msm(wstate ~ dys, subject = pid, data = spn_fup,
                     qmatrix = spn_Qmatrix,
-                    covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses, "2-1" = ~ hiv + agegp + sex),
+                    covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses + seas, "2-1" = ~ hiv + agegp + sex),
                     opt.method = "bobyqa", control = list(maxfun = 10000000))
 
 #====================================================================
@@ -34,8 +34,8 @@ statetable.msm(state, pid, data = spn_fup)
 
 #initiate transition intensity matrix Q
 spn_Qmatrix <- rbind(c(0.03, 0.12, 0.26),
-                     c(0.26, 0.74, 0.00), 
-                     c(0.15, 0.00, 0.35))
+                     c(0.26, 0.74, 0.0), 
+                     c(0.15, 0.0, 0.35))
 
 rownames(spn_Qmatrix) <- c("Clear", "VTcarry", "NVTcarry")
 colnames(spn_Qmatrix) <- c("Clear", "VTcarry", "NVTcarry")
@@ -44,8 +44,8 @@ spn_Qmatrix
 #run the Markov model
 spn_modelfit2 <- msm(state ~ dys, subject = pid, data = spn_fup,
                 qmatrix = spn_Qmatrix,
-                covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses, "2-1" = ~ hiv + agegp + sex,
-                                  "1-3" = ~ hiv + agegp + sex + nochild + ses, "3-1" = ~ hiv + agegp + sex),
+                covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses + seas, "2-1" = ~ hiv + agegp + sex,
+                                  "1-3" = ~ hiv + agegp + sex + nochild + ses + seas, "3-1" = ~ hiv + agegp + sex),
                 opt.method = "bobyqa", control = list(maxfun = 10000000))
 
 #====================================================================

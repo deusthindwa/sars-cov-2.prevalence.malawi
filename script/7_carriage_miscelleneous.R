@@ -7,6 +7,12 @@
 #other pneumococcal dynamics parameters
 
 #estimate the number of episodes
+#overall
+envisits.msm(spn_modelfit1, fromt = 0, tot = 365.25, covariates = list(hiv = "hiv_neg"), ci = "normal", cl = 0.95)
+envisits.msm(spn_modelfit1, fromt = 0, tot = 365.25, covariates = list(hiv = "art_3m"), ci = "normal", cl = 0.95)
+envisits.msm(spn_modelfit1, fromt = 0, tot = 365.25, covariates = list(hiv = "art_1y"), ci = "normal", cl = 0.95)
+
+#by serogroup
 envisits.msm(spn_modelfit2, fromt = 0, tot = 365.25, ci = "normal", cl = 0.95)
 envisits.msm(spn_modelfit2, fromt = 0, tot = 365.25, covariates = list(hiv = "hiv_neg"), ci = "normal", cl = 0.95)
 envisits.msm(spn_modelfit2, fromt = 0, tot = 365.25, covariates = list(hiv = "art_3m"), ci = "normal", cl = 0.95)

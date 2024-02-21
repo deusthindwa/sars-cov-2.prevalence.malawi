@@ -50,7 +50,7 @@ spn_all <-
 
 #spn carriage density
                 densgp = if_else(is.na(dens), "none",
-                                           if_else(dens <= 15080, "low", "high")), #below median value
+                                           if_else(dens <= 10720 , "low", "high")), #below median value
                 densgp = factor(densgp, levels(factor(densgp))[c(2,1,3)]),
 
 #other covariates
