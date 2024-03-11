@@ -32,7 +32,7 @@ spn_all <-
   dplyr::mutate(hiv = if_else(hiv == "HIV neg", "hiv_neg",
                               if_else(hiv == "HIV <3m", "art_3m",
                               if_else(hiv == "HIV>1year", "art_1y", NA_character_))),
-                hiv = factor(hiv, levels(factor(hiv))[c(3,1,2)])) %>% #3-hivNeg,1-hiv1yPos, 2-hiv3mPos
+                hiv = factor(hiv, levels(factor(hiv))[c(3,1,2)])) %>% #3-hivNeg, 1-hiv1yPos, 2-hiv3mPos
 
 #follow-up details 
   dplyr::arrange(pid, sdate) %>%
